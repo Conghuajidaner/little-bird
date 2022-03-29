@@ -2,8 +2,9 @@
 
 namespace conghuajidan
 {
-    Thread_pool::Thread_pool()
+    Thread_pool::Thread_pool(size_t thread_pool_size)
     {
+        thread_pool_size_ = thread_pool_size;
         init_();
     }
 
@@ -15,21 +16,69 @@ namespace conghuajidan
     void Thread_pool::init_()
     {
         // init thread pool
+        thread_switch_ = true;
+
+        task_que_.resize(thread_pool_size_);
+        manager_thread_ = std::make_unique<std::thread>(&Thread_pool::manager_, this);
+
+        manager_thread_.get()->detach();
     }
 
     void Thread_pool::deinit_()
     {
-        // northing to do
+        std::cout << "end!\n"; 
+        thread_switch_ = false;
+
+        for (auto &e: task_que_)
+        {
+            e.join();
+        }
+        manager_thread_.get()->join();
+    }
+
+    int Thread_pool::get_pool_size()
+    {
+        return int(task_que_.size());
     }
 
     void Thread_pool::manager_()
     {
-        
+        while (thread_switch_)
+        {
+            std::cout << "run!\n";
+            // buf_pool is empth
+            if (buf_pool_.empty())
+            {
+                // std::cout << std::to_string(task_que_.size()) + "\n";
+                // WAIT_TIME;
+            } else {
+                // The task queue is full
+                // if (/* condition */)
+                // {
+                //     /* code */
+                // }
+            }
+        }
     }
 
-    void Thread_pool::enque_(Task& t)
+    //  external interface
+    void Thread_pool::put_in_pool()
+    {
+
+    }
+
+    // thread safe queue
+    void Thread_pool::enque_(Task &task)
     {
         std::unique_lock<std::mutex> lock(insert_mutes_);
-        buf_pool_.push(t);
+        buf_pool_.push(task);
+    }
+
+    Task Thread_pool::outque_()
+    {
+        std::unique_lock<std::mutex> lock(insert_mutes_);
+        auto top_task = buf_pool_.front();
+        buf_pool_.pop();
+        return top_task;
     }
 } // namespace conghuajidan
