@@ -1,7 +1,7 @@
 import os
 import sys
 
-work_space = "/root/Code/little-bird/"
+work_space = "/root/Code/dev/little-bird/"
 project_name = ""
 
 def format_print(info, flag):
@@ -33,18 +33,26 @@ def is_project(project_name):
 def create_project(project_name):
     include_path = work_space +  project_name + "/include"
     src_path = work_space +  project_name + "/src"
+
+    test_path_ut = work_space +  project_name + "/test/utest"
+    test_path_benchmark = work_space +  project_name + "/test/benchmark"
+
     readme_file = "README.md"
     cmake_file = "CMakeLists.txt"
 
     cmd_mkdir_director_include = "mkdir -p " +  include_path
     cmd_mkdir_director_src = "mkdir -p " + src_path
+    cmd_mkdir_director_test_tu = "mkdir -p " + test_path_ut
+    cmd_mkdir_director_test_benchmark = "mkdir -p " + test_path_benchmark
 
     cmd_touch_file_readme = "touch " + readme_file
     cmd_touch_file_cmake = "touch " + cmake_file
     
     os.system(cmd_mkdir_director_include)
     os.system(cmd_mkdir_director_src)
-
+    os.system(cmd_mkdir_director_test_tu)
+    os.system(cmd_mkdir_director_test_benchmark)
+    
     os.chdir(work_space + project_name)
 
     os.system(cmd_touch_file_readme)
