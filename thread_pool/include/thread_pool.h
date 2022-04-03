@@ -1,6 +1,7 @@
 #ifndef _THREAD_POOL_
 #define _THREAD_POOL_
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <mutex>
@@ -32,7 +33,7 @@ namespace conghuajidan
 
         std::mutex insert_mutes_;
 
-        bool thread_switch_;
+        std::atomic<bool> thread_switch_;
         std::unique_ptr<std::thread> manager_thread_;
     public:
         Thread_pool(size_t thread_pool_size);

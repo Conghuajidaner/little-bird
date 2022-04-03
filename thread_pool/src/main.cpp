@@ -14,10 +14,12 @@ void test(size_t number)
 int main()
 {
     auto thread_pool = std::make_unique<Thread_pool>(100);
-    thread_pool.reset();
-    for (size_t idx = 0; idx < CASE_NUMBER; ++ idx)
+    for (size_t idx = 0; idx < CASE_NUMBER/100; ++ idx)
     {
         // thread_pool.put_in_pool();
+        WAIT_TIME;
+        std::cout << "WAIT_TIME:" + std::to_string(idx) +  "\n";
     }
+    thread_pool.reset();
     return 0;
 }

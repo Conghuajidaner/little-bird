@@ -19,6 +19,10 @@ namespace conghuajidan
         thread_switch_ = true;
 
         task_que_.resize(thread_pool_size_);
+        for (auto &e: task_que_) {
+            e = std::thread();
+        }
+
         manager_thread_ = std::make_unique<std::thread>(&Thread_pool::manager_, this);
 
         manager_thread_.get()->detach();
@@ -26,14 +30,18 @@ namespace conghuajidan
 
     void Thread_pool::deinit_()
     {
-        std::cout << "end!\n"; 
+
         thread_switch_ = false;
 
-        for (auto &e: task_que_)
-        {
-            e.join();
+        for (auto &e : task_que_) {
+            if (e.joinable()) {
+                e.join();
+            }
         }
-        manager_thread_.get()->join();
+        if (manager_thread_.get()->joinable()) {
+            manager_thread_.get()->join();
+        }
+        std::cout << "end!\n";
     }
 
     int Thread_pool::get_pool_size()
