@@ -16,73 +16,61 @@ namespace conghuajidan
     void Thread_pool::init_()
     {
         // init thread pool
-        thread_switch_ = true;
+        thread_status_ = true;
 
         task_que_.resize(thread_pool_size_);
-        for (auto &e: task_que_) {
-            e = std::thread();
-        }
 
         manager_thread_ = std::make_unique<std::thread>(&Thread_pool::manager_, this);
-
-        manager_thread_.get()->detach();
     }
 
     void Thread_pool::deinit_()
     {
-
-        thread_switch_ = false;
-
-        for (auto &e : task_que_) {
-            if (e.joinable()) {
-                e.join();
-            }
-        }
-        if (manager_thread_.get()->joinable()) {
+        if (manager_thread_.get()->joinable())
+        {
             manager_thread_.get()->join();
         }
+        thread_status_ = false;
         std::cout << "end!\n";
-    }
-
-    int Thread_pool::get_pool_size()
-    {
-        return int(task_que_.size());
     }
 
     void Thread_pool::manager_()
     {
-        while (thread_switch_)
+        std::cout << "run!\n";
+        while (thread_status_)
         {
-            std::cout << "run!\n";
             // buf_pool is empth
             if (buf_pool_.empty())
             {
-                // std::cout << std::to_string(task_que_.size()) + "\n";
-                // WAIT_TIME;
-            } else {
-                // The task queue is full
-                // if (/* condition */)
-                // {
-                //     /* code */
-                // }
+                std::cout << "thread pool is empty :)" << std::endl;
+                WAIT_TIME(1);
+            }
+            else
+            {
+                for (size_t i = 0; i < buf_pool_.size(); ++i)
+                {
+                    auto top_task = outque_();
+                    task_que_[i%thread_pool_size_] = std::thread(top_task);
+                    task_que_[i%thread_pool_size_].detach();
+                    std::cout << "therad worker " << i%thread_pool_size_ << std::flush << std::endl; 
+                }
             }
         }
     }
 
     //  external interface
-    void Thread_pool::put_in_pool()
+    void Thread_pool::put_in_pool(std::function<void()> t)
     {
-
+        enque_(t);
     }
 
     // thread safe queue
-    void Thread_pool::enque_(Task &task)
+    void Thread_pool::enque_(task t)
     {
         std::unique_lock<std::mutex> lock(insert_mutes_);
-        buf_pool_.push(task);
+        buf_pool_.push(t);
     }
 
-    Task Thread_pool::outque_()
+    task Thread_pool::outque_()
     {
         std::unique_lock<std::mutex> lock(insert_mutes_);
         auto top_task = buf_pool_.front();

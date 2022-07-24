@@ -1,25 +1,29 @@
 #include <iostream>
+#include <string>
 #include <thread>
-#include "../include/thread_pool.h"
+#include "thread_pool.h"
 
 using namespace conghuajidan;
 
 constexpr size_t CASE_NUMBER = 100;
 
-void test(size_t number)
+void test()
 {
-    std::cout << std::to_string(number) + ". Hello World!\n";
+    static int num = 1;
+    std::cout << std::to_string(num++) + "test function!\n";
 }
 
 int main()
 {
-    auto thread_pool = std::make_unique<Thread_pool>(100);
-    for (size_t idx = 0; idx < CASE_NUMBER/100; ++ idx)
+    auto thread_pool = std::make_unique<Thread_pool>(size_t(1000));
+    std::cout << std::thread::hardware_concurrency() - 2 << std::endl;
+    while (true)
     {
-        // thread_pool.put_in_pool();
-        WAIT_TIME;
-        std::cout << "WAIT_TIME:" + std::to_string(idx) +  "\n";
+        // WAIT_TIME(1);
+        thread_pool->put_in_pool(test);
+        thread_pool->put_in_pool(test);
+        thread_pool->put_in_pool(test);
+        thread_pool->put_in_pool(test);
     }
-    thread_pool.reset();
     return 0;
 }

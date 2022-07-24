@@ -12,36 +12,35 @@
 
 namespace conghuajidan
 {
-    
-    #define WAIT_TIME std::this_thread::sleep_for(std::chrono:: milliseconds (500))
 
-    struct Task
-    {
-        /* data */
-        std::function<void()> fun;
-    };
+#define WAIT_TIME(s) std::this_thread::sleep_for(std::chrono::seconds(s))
+
+    using task = std::function<void()>;
+
+    using p_size = uint8_t;
 
     class Thread_pool
     {
     private:
         /* data */
-        size_t thread_pool_size_;
-        std::queue<Task> buf_pool_;
+        p_size thread_pool_size_;
+        std::queue<std::function<void()>> buf_pool_;
 
         // There's a better way to do it：Vector implement circular queues
         std::vector<std::thread> task_que_;
 
         std::mutex insert_mutes_;
 
-        std::atomic<bool> thread_switch_;
+        std::atomic<bool> thread_status_;
         std::unique_ptr<std::thread> manager_thread_;
+
     public:
+        Thread_pool() = delete;
         Thread_pool(size_t thread_pool_size);
         ~Thread_pool();
-        
+
         // interface
-        void put_in_pool();
-        int get_pool_size();
+        void put_in_pool(task);
 
     private:
         void manager_();
@@ -51,8 +50,8 @@ namespace conghuajidan
         void init_();
 
         // we can use the return value to represent the result
-        void enque_(Task &task);
-        Task outque_();
+        void enque_(task t);
+        task outque_();
     };
 } // namespace conghuajidan
 
