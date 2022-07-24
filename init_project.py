@@ -1,7 +1,8 @@
+from asyncore import read
 import os
 import sys
 
-work_space = "/root/Code/dev/little-bird/"
+work_space = "./"
 project_name = ""
 
 def format_print(info, flag):
@@ -39,29 +40,27 @@ def create_project(project_name):
 
     readme_file = "README.md"
     cmake_file = "CMakeLists.txt"
-
-    cmd_mkdir_director_include = "mkdir -p " +  include_path
-    cmd_mkdir_director_src = "mkdir -p " + src_path
-    cmd_mkdir_director_test_tu = "mkdir -p " + test_path_ut
-    cmd_mkdir_director_test_benchmark = "mkdir -p " + test_path_benchmark
-
-    cmd_touch_file_readme = "touch " + readme_file
-    cmd_touch_file_cmake = "touch " + cmake_file
     
-    os.system(cmd_mkdir_director_include)
-    os.system(cmd_mkdir_director_src)
-    os.system(cmd_mkdir_director_test_tu)
-    os.system(cmd_mkdir_director_test_benchmark)
+    c_include = os.makedirs(include_path)
+    c_src = os.makedirs(src_path)
+    c_t_u = os.makedirs(test_path_ut)
+    c_t_b = os.makedirs(test_path_benchmark)
     
     os.chdir(work_space + project_name)
 
-    os.system(cmd_touch_file_readme)
-    # os.system("echo # " + str.upper(project_name) + ">" )
-    os.system(cmd_touch_file_cmake)
+    file_readme_ = os.open(readme_file, os.O_CREAT|os.O_RDWR)
+    t_r_c = os.close(file_readme_)
 
-    if os.path.exists(include_path) and os.path.exists(src_path) and os.path.exists(readme_file) and os.path.exists(cmake_file):
-            return True
+    file_CMakeLists_ = os.open(cmake_file, os.O_CREAT|os.O_RDWR)
+    t_c_c = os.close(file_CMakeLists_)
+    
+    print(t_c_c,t_r_c,c_t_b,c_t_u,c_src,c_include)
+    
+    if  (c_include and c_src and c_t_u and c_t_b):
+        return True
 
+    if  (t_r_c and t_c_c):
+        return True
     return False
 
 if __name__ == '__main__':
